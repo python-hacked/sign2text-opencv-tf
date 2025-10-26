@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign2Text - AI Sign Language Recognition</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .video-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .video-container img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .language-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn.active {
+            background: #4CAF50 !important;
+            color: white;
+        }
+
+        .btn-english {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-hindi {
+            background: #FF9800;
+            color: white;
+        }
+
+        .status {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            margin-bottom: 10px;
+        }
+
+        .status-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .camera-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
+        .camera-available {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .camera-unavailable {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Welcome Screen Styles */
+        .welcome-screen {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .ai-image {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome-screen h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .welcome-description {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .demo-video {
+            margin: 30px 0;
+        }
+
+        .demo-placeholder {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            display: inline-block;
+        }
+
+        .demo-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .instructions-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .instructions-preview h3 {
+            color: #FFD700;
+            margin-top: 0;
+        }
+
+        .instructions-preview ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Language Selection Styles */
+        .language-selection {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .language-content h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .language-content p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        /* Camera Permission Styles */
+        .camera-permission-screen {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .permission-content h2 {
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .permission-content p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .permission-button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .permission-button:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .permission-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .permission-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .permission-granted {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .permission-denied {
+            background: #f44336;
+            color: white;
+        }
+
+        .permission-pending {
+            background: #FF9800;
+            color: white;
+        }
+
+        /* App Screen Styles */
+        .app-screen {
+            display: contents;
+        }
+
+        .video-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .gesture-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .detected-gesture {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .gesture-instructions {
+            margin-top: 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .gesture-instructions p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #FFD700;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤟 Sign2Text</h1>
+        <p class="subtitle">AI-Powered Sign Language Recognition with Voice Output</p>
+
+        <div class="main-content">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-content">
+                    <div class="ai-image">
+                        🤖✨
+                    </div>
+                    <h2>Welcome to Sign2Text</h2>
+                    <p class="welcome-description">
+                        Experience the magic of AI-powered sign language recognition! Our advanced technology
+                        can detect and translate sign language gestures into speech in real-time.
+                    </p>
+
+                    <div class="demo-video">
+                        <div class="demo-placeholder">
+                            <div class="demo-icon">🎥</div>
+                            <p>Watch how it works</p>
+                        </div>
+                    </div>
+
+                    <div class="instructions-preview">
+                        <h3>✨ How the Magic Works:</h3>
+                        <ul>
+                            <li>Choose your preferred language</li>
+                            <li>Grant camera permission</li>
+                            <li>Show sign language gestures</li>
+                            <li>AI detects and speaks the gesture</li>
+                        </ul>
+                    </div>
+
+                    <button class="start-button" onclick="showLanguageSelection()">
+                        Start the Magic ✨
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language Selection Screen -->
+            <div class="language-selection" id="language-selection" style="display: none;">
+                <div class="language-content">
+                    <h2>Select Your Language / अपनी भाषा चुनें</h2>
+                    <p>Choose the language for voice output</p>
+
+                    <div class="language-buttons">
+                        <button class="btn btn-english" onclick="selectLanguage('english')">English</button>
+                        <button class="btn btn-hindi" onclick="selectLanguage('hindi')">हिंदी</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Camera Permission Screen -->
+            <div class="camera-permission-screen" id="camera-permission-screen" style="display: none;">
+                <div class="permission-content">
+                    <h2>📹 Camera Access Required</h2>
+                    <p>This app needs camera access to detect sign language gestures.</p>
+                    <button class="permission-button" id="request-camera-btn" onclick="requestCameraAccess()">
+                        Allow Camera Access
+                    </button>
+                    <div class="permission-status permission-pending" id="permission-status">
+                        Click "Allow Camera Access" to enable gesture recognition
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main App Screen -->
+            <div class="app-screen" id="app-screen" style="display: none;">
+                <div class="video-container">
+                    <h2>🤟 Live Camera Feed</h2>
+                    <div class="video-wrapper">
+                        <img src="{{ url_for('video_feed') }}" alt="Live Camera Feed" id="video-feed">
+                        <div class="gesture-overlay" id="gesture-overlay">
+                            <div class="detected-gesture" id="detected-gesture-display">Waiting for gesture...</div>
+                        </div>
+                    </div>
+                    <div class="gesture-instructions">
+                        <p>👋 Show sign language gestures in front of the camera</p>
+                        <p>🎯 AI will detect and speak the gesture name</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Select Language / भाषा चुनें:</label>
+                    <div class="language-buttons">
+                        <button class="btn btn-english active" onclick="setLanguage('english')">English</button>
+                        <button class="btn btn-hindi" onclick="setLanguage('hindi')">हिंदी</button>
+                    </div>
+                </div>
+
+                <div class="status">
+                    <div class="status-item">
+                        <span class="status-label">Current Language:</span>
+                        <span id="current-language">English</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Detected:</span>
+                        <span id="last-gesture">-</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Camera:</span>
+                        <span id="camera-status" class="camera-status camera-unavailable">Checking...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📖 How to Use / उपयोग कैसे करें:</h3>
+            <ul>
+                <li>Make sure your camera is enabled and you have good lighting</li>
+                <li>Position your hand clearly in front of the camera</li>
+                <li>Show ASL signs, numbers, or common gestures</li>
+                <li>The system will detect and speak the gesture in your selected language</li>
+                <li>Supported: A-Z, 0-9, hello, thank you, please, and basic ISL signs</li>
+                <li>कैमरा चालू रखें और अच्छी रोशनी में काम करें</li>
+                <li>अपना हाथ कैमरे के सामने स्पष्ट रूप से रखें</li>
+                <li>ASL संकेत, संख्या या सामान्य इशारे दिखाएं</li>
+                <li>सिस्टम आपके चुने हुए भाषा में इशारा पहचानकर बोल देगा</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'english';
+        let cameraStream = null;
+        let cameraPermissionGranted = false;
+        let selectedLanguage = null;
+
+        // Screen navigation functions
+        function showLanguageSelection() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('language-selection').style.display = 'block';
+        }
+
+        function showCameraPermission() {
+            document.getElementById('language-selection').style.display = 'none';
+            document.getElementById('camera-permission-screen').style.display = 'block';
+        }
+
+        function showAppScreen() {
+            document.getElementById('camera-permission-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+        }
+
+        function selectLanguage(language) {
+            selectedLanguage = language;
+            setLanguage(language);
+            showCameraPermission();
+        }
+
+        function setLanguage(language) {
+            fetch('/set_language', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ language: language })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentLanguage = language;
+                    document.getElementById('current-language').textContent =
+                        language === 'english' ? 'English' : 'हिंदी';
+
+                    // Update button states
+                    document.querySelectorAll('.language-buttons .btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+
+                    if (language === 'english') {
+                        document.querySelector('.btn-english').classList.add('active');
+                    } else {
+                        document.querySelector('.btn-hindi').classList.add('active');
+                    }
+
+                    console.log('Language changed to:', language);
+                } else {
+                    alert('Error changing language: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error changing language');
+            });
+        }
+
+        async function requestCameraAccess() {
+            const button = document.getElementById('request-camera-btn');
+            const status = document.getElementById('permission-status');
+
+            button.disabled = true;
+            button.textContent = 'Requesting Access...';
+            status.className = 'permission-status permission-pending';
+            status.textContent = 'Requesting camera permission...';
+
+            try {
+                // Request camera access using WebRTC (browser API)
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user'
+                    }
+                });
+
+                cameraPermissionGranted = true;
+                button.textContent = 'Camera Access Granted!';
+                status.className = 'permission-status permission-granted';
+                status.textContent = 'Camera access granted! Starting gesture recognition...';
+
+                // Show app screen after permission granted
+                setTimeout(() => {
+                    showAppScreen();
+                }, 2000);
+
+                console.log('Camera access granted successfully');
+
+            } catch (error) {
+                console.error('Camera access denied:', error);
+                cameraPermissionGranted = false;
+                button.disabled = false;
+                button.textContent = 'Allow Camera Access';
+                status.className = 'permission-status permission-denied';
+                status.textContent = 'Camera access denied. Please allow camera access and try again.';
+            }
+        }
+
+        // Check if camera permission is already granted
+        async function checkCameraPermission() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+                if (videoDevices.length > 0) {
+                    // Try to get camera access silently
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    cameraPermissionGranted = true;
+                    cameraStream = stream;
+
+                    // If permission already granted, skip to app screen
+                    if (selectedLanguage) {
+                        showAppScreen();
+                    }
+
+                    console.log('Camera already accessible');
+                }
+            } catch (error) {
+                // Camera not accessible, show permission request
+                console.log('Camera permission needed');
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                checkCameraPermission();
+            } else {
+                document.getElementById('permission-status').textContent =
+                    'Camera not supported in this browser';
+            }
+        });
+
+        // Update status periodically
+        setInterval(() => {
+            fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('current-language').textContent =
+                    data.language === 'english' ? 'English' : 'हिंदी';
+                document.getElementById('last-gesture').textContent = data.last_gesture || '-';
+
+                // Update camera status in UI
+                const cameraStatus = document.getElementById('camera-status');
+                if (cameraPermissionGranted) {
+                    cameraStatus.textContent = 'Active';
+                    cameraStatus.className = 'camera-status camera-available';
+                } else {
+                    cameraStatus.textContent = 'Permission Needed';
+                    cameraStatus.className = 'camera-status camera-unavailable';
+                }
+
+                // Update gesture overlay in real-time
+                const gestureDisplay = document.getElementById('detected-gesture-display');
+                if (data.last_gesture && data.last_gesture !== '-') {
+                    gestureDisplay.textContent = `🎯 Detected: ${data.last_gesture}`;
+                    gestureDisplay.style.color = '#4CAF50';
+                } else {
+                    gestureDisplay.textContent = '👀 Waiting for gesture...';
+                    gestureDisplay.style.color = '#FFD700';
+                }
+            })
+            .catch(error => console.error('Error updating status:', error));
+        }, 500); // Update more frequently for real-time feel
+    </script>
+</body>
+</html>
