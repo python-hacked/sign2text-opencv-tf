@@ -28,7 +28,7 @@ Thank you for your interest in contributing to Sign2Text! We welcome contributio
 ### Quick Start
 ```bash
 # Fork and clone the repository
-git clone https://github.com/your-username/sign2text-opencv-tf.git
+git clone https://github.com/python-hacked/sign2text-opencv-tf.git
 cd sign2text-opencv-tf
 
 # Set up development environment

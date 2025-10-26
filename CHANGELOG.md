@@ -104,4 +104,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
 
 ---
 
-*For older versions, see the [Git history](https://github.com/your-username/sign2text-opencv-tf/commits/main).*
+*For older versions, see the [Git history](https://github.com/python-hacked/sign2text-opencv-tf/commits/main).*
+
