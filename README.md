@@ -463,7 +463,7 @@ curl -X POST http://localhost:8000/set_language \
 ## GitHub Repository
 
 You can find the complete source code at:
-**https://github.com/[your-username]/sign2text-opencv-tf**
+**https://github.com/python-hacked/sign2text-opencv-tf**
 
 To upload this project to GitHub:
 
@@ -474,7 +474,7 @@ To upload this project to GitHub:
    git add .
    git commit -m "Sign language recognition app with voice output"
    git branch -M main
-   git remote add origin https://github.com/[your-username]/sign2text-opencv-tf.git
+   git remote add origin https://github.com/python-hacked/sign2text-opencv-tf.git
    git push -u origin main
    ```
 
